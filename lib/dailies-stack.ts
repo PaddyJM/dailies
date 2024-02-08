@@ -6,6 +6,8 @@ import 'dotenv/config'
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as eventsTargets from 'aws-cdk-lib/aws-events-targets';
 
 export class DailiesStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -36,5 +38,12 @@ export class DailiesStack extends cdk.Stack {
     });
 
     reminderFunction.addToRolePolicy(lambdaSnsPolicy);
+
+    const reminderEventRule = new events.Rule(this, 'DailiesRemindersRule', {
+      schedule: events.Schedule.cron({ minute: '0' }),
+      targets: [new eventsTargets.LambdaFunction(reminderFunction)],
+    });
+
+    eventsTargets.addLambdaPermission(reminderEventRule, reminderFunction);
   }
 }
