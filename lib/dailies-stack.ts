@@ -40,7 +40,7 @@ export class DailiesStack extends cdk.Stack {
     reminderFunction.addToRolePolicy(lambdaSnsPolicy);
 
     const reminderEventRule = new events.Rule(this, 'DailiesRemindersRule', {
-      schedule: events.Schedule.expression('cron(0 6,9,12,15,18,21 * * ? *)'),
+      schedule: events.Schedule.expression(process.env.REMINDER_CRON ?? 'cron(0 6,9,12,15,18,21 * * ? *)'),
       targets: [new eventsTargets.LambdaFunction(reminderFunction)],
     });
 
